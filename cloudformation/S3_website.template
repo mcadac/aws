@@ -1,0 +1,46 @@
+{
+    "AwsTemplateFormatVersion": "2010-09-09",
+
+    "Description" : "Example for creating a S3 bucket using CF",
+
+    "Resources": {
+        "S3Bucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "AccessControl": "PublicRead",
+                "WebsiteConfiguration":{
+                    "IndexDocument": "index.html",
+                    "ErrorDocument": "error.html"
+                }
+            }
+        },
+        "DeletionPolicy": "Retain"
+    },
+
+    "mybucketpolicy":{
+        "Type": "AWS::S3::BucketPolicy",
+        "Properties":{
+            "PolicyDocument":{
+                "Version":"2012-10-17",
+                "Statement":[{
+                    "Sid": "PublicReadGetObject",
+                    "Effect": "Allow",
+                    "Principal": "*",
+                    "Action": ["s3:GetObject"],
+                    "Resource": {
+                        "Fn::Join": ["", ["arn:aws:s3:::", {"Ref": "S3Bucket"}, "/*"]]
+                    }
+                }]
+            },
+            "Bucket": {"Ref": "S3Bucket"}
+        }
+    },
+
+    "Outputs": {
+        "WebsiteURL":{
+            "Value": {"Fn::GetAtt": ["S3Bucket", "WebsiteURL"]},
+            "Description": "URL for website hosted on S3"
+        }
+    }
+
+}
